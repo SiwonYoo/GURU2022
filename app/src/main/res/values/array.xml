@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string-array name="genreList">
+        <item>선택</item>
+        <item>멜로</item>
+        <item>코미디</item>
+        <item>로맨틱 코미디</item>
+        <item>액션</item>
+        <item>누와르</item>
+        <item>스릴러</item>
+        <item>미스터리</item>
+        <item>공포</item>
+        <item>공상과학</item>
+        <item>판타지</item>
+        <item>애니메이션</item>
+        <item>다큐멘터리</item>
+        <item>기타</item>
+    </string-array>
+
+    <string-array name="placeList">
+        <item>선택</item>
+        <item>영화관</item>
+        <item>극장</item>
+        <item>넷플릭스</item>
+        <item>왓챠</item>
+        <item>티빙</item>
+        <item>디즈니+</item>
+        <item>쿠팡플레이</item>
+        <item>네이버 시리즈온</item>
+        <item>웨이브</item>
+        <item>시즌</item>
+        <item>기타</item>
+
+
+    </string-array>
+</resources>
