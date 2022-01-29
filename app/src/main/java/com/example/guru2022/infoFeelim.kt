@@ -1,22 +1,17 @@
 package com.example.guru2022
 
 import android.app.DatePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
-import androidx.core.view.get
-//import com.example.guru2022.databinding.ActivityMainBinding
+import androidx.core.widget.doBeforeTextChanged
 import java.util.*
-import kotlin.properties.Delegates
 
-class newFeelim : AppCompatActivity() {
+class infoFeelim : AppCompatActivity() {
 
     var dateString = ""
     var starNum = 0.0
@@ -24,7 +19,7 @@ class newFeelim : AppCompatActivity() {
     var placeS = 0
 
     lateinit var logo: View
-    lateinit var removeFeelim: TextView
+    lateinit var addFeelim: TextView
 
     lateinit var edtMovieTitle: EditText
     lateinit var edtStartDate: TextView
@@ -33,7 +28,12 @@ class newFeelim : AppCompatActivity() {
     lateinit var edtScore: RatingBar
     lateinit var edtPlace: Spinner
 
-    lateinit var addFeelim: Button
+    lateinit var FdbMovieTitle: String
+    lateinit var FdbStartDate: String
+    lateinit var FdbFinishDate: String
+    var FdbGenre: Int = 0
+    lateinit var FdbScore: String
+    var FdbPlace: Int = 0
 
     lateinit var myHelper: DBManager
     lateinit var sqlDB: SQLiteDatabase
@@ -42,12 +42,10 @@ class newFeelim : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_new_feelim)
-
-
+        setContentView(R.layout.activity_info_feelim)
 
         logo = findViewById(R.id.logo)
-        removeFeelim = findViewById(R.id.removeFeelim)
+        addFeelim = findViewById(R.id.addFeelim)
 
         edtMovieTitle = findViewById(R.id.edtMovieTitle)
         edtStartDate = findViewById(R.id.edtStartDate)
@@ -56,10 +54,31 @@ class newFeelim : AppCompatActivity() {
         edtScore = findViewById(R.id.edtScore)
         edtPlace = findViewById(R.id.edtPlace)
 
-        addFeelim = findViewById(R.id.addFeelim)
+        val intent = intent
+        FdbMovieTitle = intent.getStringExtra("intent_name").toString()
 
         // DB
         myHelper = DBManager(this, "movieList", null, 1)
+        sqlDB = myHelper.readableDatabase
+
+        var cursor: Cursor
+        cursor = sqlDB.rawQuery("SELECT * FROM movieList WHERE mvTitle = '" + FdbMovieTitle + "';", null)
+
+        if (cursor.moveToNext()) {
+            FdbStartDate = cursor.getString(cursor.getColumnIndex("mvStartDate")).toString()
+            FdbFinishDate = cursor.getString(cursor.getColumnIndex("mvFinishDate")).toString()
+            FdbGenre = cursor.getInt(cursor.getColumnIndex("mvGenre")).toInt()
+            FdbPlace = cursor.getInt(cursor.getColumnIndex("mvPlace")).toInt()
+        }
+
+        cursor.close()
+        sqlDB.close()
+        myHelper.close()
+
+        edtMovieTitle.setText(FdbMovieTitle)
+        edtStartDate.text = FdbStartDate
+        edtFinishDate.text = FdbFinishDate
+
 
         // 로고 (클릭 시 메인 화면으로 이동)
         // 위치만 수정 필요 (Home)
@@ -103,14 +122,11 @@ class newFeelim : AppCompatActivity() {
         }
 
         // 장르
-        // 스피너
-
         var DataG = resources.getStringArray(R.array.genreList)
         var adapterGenre = ArrayAdapter<String> (this, R.layout.spinnerlayout, DataG)
-
         edtGenre.adapter = adapterGenre
 
-        edtGenre.setSelection(0)
+        edtGenre.setSelection(FdbGenre)
 
         edtGenre.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
@@ -130,19 +146,15 @@ class newFeelim : AppCompatActivity() {
         edtScore.setOnRatingBarChangeListener { _, rating, _ ->
             edtScore.rating = rating
         }
-        starNum = edtScore.getNumStars().toDouble()
-
 
         // 장소
-        // edtPlace.adapter =
-        //    ArrayAdapter.createFromResource(this, R.array.placeList, R.layout.spinnerlayout)
 
         var DataP = resources.getStringArray(R.array.placeList)
         var adapterPlace = ArrayAdapter<String> (this, R.layout.spinnerlayout, DataP)
 
         edtPlace.adapter = adapterPlace
 
-        edtPlace.setSelection(0)
+        edtPlace.setSelection(FdbPlace)
 
         edtPlace.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
@@ -166,17 +178,12 @@ class newFeelim : AppCompatActivity() {
             sqlDB.execSQL("INSERT INTO movieList VALUES ('" + edtMovieTitle.text.toString() + "','"
                     + edtStartDate.text.toString() + "','"
                     + edtFinishDate.text.toString() + "','"
-                    + genreS.toInt() + "','"
-                    + starNum.toDouble() + "','"
-                    + placeS.toInt()
+                    + edtGenre.toString() + "','"
+                    + edtScore.toString() + "','"
+                    + edtPlace.toString()
                     + "');") // DB에 저장 (제목, 시작날짜, 종료날짜, 장르, 평점, 장소/플랫폼)
             sqlDB.close()
 
-            val intent = Intent(this, infoFeelim::class.java)
-            intent.putExtra("intent_name", edtMovieTitle.text.toString())
-            startActivity(intent)
         }
-
     }
-
 }
